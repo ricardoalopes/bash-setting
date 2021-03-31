@@ -1,0 +1,70 @@
+#  - - - - - - 
+#    B A S H | 
+#  - - - - - - 
+
+alias ls='ls -GFh'
+
+# some more ls aliases
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+# colorize `grep` output
+alias grep='grep --color=auto'
+
+#  - - - - - - 
+#    MVN     | 
+#  - - - - - - 
+
+alias mvnDebug='mvn -Dmaven.surefire.debug="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=6666 -Xnoagent -Djava.compiler=NONE"'
+
+#  - - - - - 
+#    G I T  |
+#  - - - - - 
+
+# git pretty log
+alias gitpl="git log --graph --abbrev-commit --date=short --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'" 
+
+# Set my current branch to be just as equal as remote
+alias git-reset-to-origin='git reset --hard origin/$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)'
+
+#  - - - - - - - - -
+#    D O C K E R   -
+#  - - - - - - - - -
+
+# Small set of docker aliases
+alias d='docker'
+alias d_im='docker images'
+alias d_ps='d ps -a'
+
+# Remove running containers
+alias d_rm_all='d_ps | tail -n +2 | grep -v "openvpn" | grep -v "docker-mac-network_proxy" | cut -f 1 -d " " | xargs docker rm -f'
+
+
+# Enter to the docker container bash
+function d_in() {
+    d exec -it $(d_ps | grep $1 | awk '{print $1}') bash
+}
+
+#get the container ip
+function d_ip() {
+    if [ $# -ne 1 ];
+        then echo "Illegal usage of the script, its only expecting the container ID as parameter."
+    fi
+    docker inspect --format '{{ .NetworkSettings.IPAddress }}' $(d_ps | grep $1 | awk '{print $1}')
+}
+
+# remove a container
+function d_rm() {
+    d rm -f $1
+}
+
+# removes all <nome> images
+alias d_rmi_all='docker images -q --filter "dangling=true" | xargs docker rmi -f'
+
+
+# remove all images with the giver pattern
+function d_rm_img_set() {
+    docker rmi -f $(docker images --format '{{.Repository}}:{{.Tag}}' | grep "$1")
+
+}
